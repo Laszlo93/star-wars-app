@@ -7,6 +7,8 @@ export default function Card(theme: Theme) {
         root: {
           position: 'relative',
           borderRadius: Number(theme.shape.borderRadius) * 2,
+          boxShadow: `0 0 10px 0 ${theme.palette.background.default}`,
+          background: theme.palette.background.paper,
         },
       },
     },
