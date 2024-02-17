@@ -7,7 +7,7 @@ type Props = {
 
 const DashboardLayout = ({ children }: Props) => {
   return (
-    <Grid container justifyContent="center">
+    <Grid container justifyContent="center" marginTop={4}>
       <Grid item xs={12} sm={10} md={9} padding={3}>
         {children}
       </Grid>

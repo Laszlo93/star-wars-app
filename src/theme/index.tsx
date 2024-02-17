@@ -9,6 +9,7 @@ import {
   StyledEngineProvider,
 } from '@mui/material/styles';
 import palette from './palette';
+import { ComponentsOverrides } from './overrides';
 
 type Props = {
   children: ReactNode;
@@ -23,6 +24,8 @@ export default function ThemeProvider({ children }: Props) {
   };
 
   const theme = createTheme(themeOptions);
+
+  theme.components = ComponentsOverrides(theme);
 
   return (
     <StyledEngineProvider injectFirst>
