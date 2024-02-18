@@ -6,22 +6,26 @@ import { useEffect, useState } from 'react';
 import axios from '@/utils/axios';
 import CustomizedModal from '@/components/CustomizedModal';
 import CharacterDetails from './CharacterDetails';
-import { Character } from '@/@types/people';
+import { Character, Gender } from '@/@types/people';
 import CharacterSummary from './CharacterSummary';
 import { useGetFilmsQuery } from '@/redux/api/userAPI';
 import { SwapiResponse } from '@/@types/types';
 import CharacterSummarySkeleton from '@/components/skeletons/CharacterSummarySkeleton';
 import useResponsive from '@/hooks/useResponsive';
+import FilterToolbar from './FilterToolbar';
+import { useAppSelector } from '@/redux/hook';
 
 const defaultUrl = 'people';
 
 const PeopleContent = () => {
   const { data: films } = useGetFilmsQuery({});
+  const planets = useAppSelector((state) => state.planets.planets);
 
   const mdUp = useResponsive('up', 'md');
 
   const [people, setPeople] = useState<SwapiResponse<Character>>();
   const [charachters, setCharacters] = useState<Character[]>([]);
+  const [filteredCharachters, setFilteredCharacters] = useState<Character[]>([]);
   const [selectedCharacter, setSelectedCharacter] = useState<Character>({} as Character);
 
   const [total, setTotal] = useState(0);
@@ -33,12 +37,31 @@ const PeopleContent = () => {
 
   const noData = !isLoading && !charachters.length;
 
+  useEffect(() => {
+    setIsLoading(true);
+
+    const getPeople = async () => {
+      try {
+        const { data } = await axios.get<SwapiResponse<Character>>(`${url}`);
+
+        setPeople(data);
+        setCharacters(data.results);
+        setFilteredCharacters(data.results);
+        setTotal(data.count);
+      } catch (error) {
+        console.error(error);
+      }
+
+      setIsLoading(false);
+    };
+
+    getPeople();
+  }, [url]);
+
   const handleOpenCharacterDetails = (character: Character) => {
     setOpenModal(true);
     setSelectedCharacter(character);
   };
-
-  const handleCloseModal = () => setOpenModal(false);
 
   const handleChangePage = (event: unknown, newPage: number) => {
     if (newPage > page) {
@@ -50,25 +73,34 @@ const PeopleContent = () => {
     setPage(newPage);
   };
 
-  useEffect(() => {
-    setIsLoading(true);
+  const handleCloseModal = () => setOpenModal(false);
 
-    const getPeople = async () => {
-      try {
-        const { data } = await axios.get<SwapiResponse<Character>>(`${url}`);
+  const handleFilterByName = (query: string) => {
+    setPage(0);
+    setUrl(`people/?search=${query}`);
+  };
 
-        setPeople(data);
-        setCharacters(data.results);
-        setTotal(data.count);
-      } catch (error) {
-        console.error(error);
-      }
+  const handleFilterByGender = (query: Gender) => {
+    if (query === Gender.ALL) {
+      setFilteredCharacters(charachters);
+    } else {
+      setFilteredCharacters((prev) => prev.filter((character) => character.gender === query));
+    }
+  };
 
-      setIsLoading(false);
-    };
+  const handleFilterByPlanet = (query: string) => {
+    if (query === 'all') {
+      setFilteredCharacters(charachters);
+    } else {
+      setFilteredCharacters((prev) =>
+        prev.filter((character) => {
+          const planetId = character.homeworld.split('/').at(-2);
 
-    getPeople();
-  }, [url]);
+          return planetId ? query === planets[Number(planetId) - 1] : false;
+        })
+      );
+    }
+  };
 
   const getCharacterWithFilmNames = (character: Character) => {
     if (films) {
@@ -89,6 +121,12 @@ const PeopleContent = () => {
       <CustomizedModal open={openModal} onClose={handleCloseModal}>
         <CharacterDetails character={selectedCharacter} />
       </CustomizedModal>
+
+      <FilterToolbar
+        onFilterName={handleFilterByName}
+        onFilterGender={handleFilterByGender}
+        onFilterPlanet={handleFilterByPlanet}
+      />
 
       <Grid container sx={{ padding: 3 }} spacing={2} justifyContent="center">
         {isLoading ? (
@@ -111,7 +149,7 @@ const PeopleContent = () => {
             )}
           </>
         ) : (
-          charachters.map((character, index) => (
+          filteredCharachters.map((character, index) => (
             <Grid item key={index} xs={6} md={3}>
               <CharacterSummary
                 character={getCharacterWithFilmNames(character)}

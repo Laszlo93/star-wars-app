@@ -17,9 +17,9 @@ export type Character = {
   vehicles: string[];
 };
 
-export type People = {
-  count: number;
-  next: string | null;
-  previous: string | null;
-  results: Character[];
-};
+export enum Gender {
+  ALL = 'all',
+  MALE = 'male',
+  FEMALE = 'female',
+  NEUTRAL = 'n/a',
+}
