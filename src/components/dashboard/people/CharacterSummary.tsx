@@ -4,6 +4,7 @@ import { Box, Card, Tooltip, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import InfoIcon from '@mui/icons-material/Info';
 import { Character } from '@/@types/people';
+import useResponsive from '@/hooks/useResponsive';
 
 const AnimatedCard = styled(Card)(({ theme }) => ({
   background: theme.palette.background.neutral,
@@ -23,19 +24,36 @@ type Props = {
 };
 
 const CharacterSummary = ({ character, onDetails }: Props) => {
+  const smDown = useResponsive('down', 'sm');
+  const mdUp = useResponsive('up', 'md');
+  const lgDown = useResponsive('down', 'lg');
+
   const { name, url } = character;
 
   const characterId = url.split('/').at(-2);
+
+  let modifiedName = '';
+  let hasTooltip = false;
+
+  if (smDown && name.length > 6) {
+    modifiedName = name.replace(/^(.{4}).{3,}$/, '$1...');
+
+    hasTooltip = true;
+  } else if (mdUp && lgDown && name.length > 8) {
+    modifiedName =
+      mdUp && lgDown && name.length > 8 ? name.replace(/^(.{8}).{3,}$/, '$1...') : name;
+
+    hasTooltip = true;
+  } else {
+    modifiedName = name;
+  }
 
   const handleDetails = () => {
     onDetails(character);
   };
 
   return (
-    <AnimatedCard
-      sx={{ background: (theme) => theme.palette.background.neutral }}
-      onClick={handleDetails}
-    >
+    <AnimatedCard onClick={handleDetails}>
       <Box
         component="img"
         src={`/assets/img/people/${characterId}.jpg`}
@@ -50,7 +68,14 @@ const CharacterSummary = ({ character, onDetails }: Props) => {
         paddingX={2}
         paddingY={1}
       >
-        <Typography variant="h6">{name}</Typography>
+        <Tooltip
+          enterTouchDelay={0}
+          leaveTouchDelay={15000}
+          title={hasTooltip ? name : ''}
+          placement="top"
+        >
+          <Typography variant="h6">{modifiedName}</Typography>
+        </Tooltip>
 
         <Tooltip enterTouchDelay={0} leaveTouchDelay={15000} title="Részletek" placement="top">
           <InfoIcon color="disabled" />

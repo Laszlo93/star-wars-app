@@ -6,13 +6,21 @@ import { useEffect, useState } from 'react';
 import axios from '@/utils/axios';
 import CustomizedModal from '@/components/CustomizedModal';
 import CharacterDetails from './CharacterDetails';
-import { Character, People } from '@/@types/people';
+import { Character } from '@/@types/people';
 import CharacterSummary from './CharacterSummary';
+import { useGetFilmsQuery } from '@/redux/api/userAPI';
+import { SwapiResponse } from '@/@types/types';
+import CharacterSummarySkeleton from '@/components/skeletons/CharacterSummarySkeleton';
+import useResponsive from '@/hooks/useResponsive';
 
 const defaultUrl = 'people';
 
 const PeopleContent = () => {
-  const [people, setPeople] = useState<People>();
+  const { data: films } = useGetFilmsQuery({});
+
+  const mdUp = useResponsive('up', 'md');
+
+  const [people, setPeople] = useState<SwapiResponse<Character>>();
   const [charachters, setCharacters] = useState<Character[]>([]);
   const [selectedCharacter, setSelectedCharacter] = useState<Character>({} as Character);
 
@@ -21,8 +29,9 @@ const PeopleContent = () => {
   const [url, setUrl] = useState(defaultUrl);
 
   const [openModal, setOpenModal] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const noData = !charachters.length;
+  const noData = !isLoading && !charachters.length;
 
   const handleOpenCharacterDetails = (character: Character) => {
     setOpenModal(true);
@@ -42,9 +51,11 @@ const PeopleContent = () => {
   };
 
   useEffect(() => {
-    const getData = async () => {
+    setIsLoading(true);
+
+    const getPeople = async () => {
       try {
-        const { data } = await axios.get<People>(`${url}`);
+        const { data } = await axios.get<SwapiResponse<Character>>(`${url}`);
 
         setPeople(data);
         setCharacters(data.results);
@@ -52,10 +63,26 @@ const PeopleContent = () => {
       } catch (error) {
         console.error(error);
       }
+
+      setIsLoading(false);
     };
 
-    getData();
+    getPeople();
   }, [url]);
+
+  const getCharacterWithFilmNames = (character: Character) => {
+    if (films) {
+      const filmNames = character.films.map((film) => {
+        const filmId = film.split('/').at(-2);
+
+        return filmId ? films[Number(filmId) - 1] : '';
+      });
+
+      return { ...character, films: filmNames };
+    } else {
+      return character;
+    }
+  };
 
   return (
     <Card>
@@ -63,12 +90,36 @@ const PeopleContent = () => {
         <CharacterDetails character={selectedCharacter} />
       </CustomizedModal>
 
-      <Grid container sx={{ padding: 3 }} spacing={2}>
-        {charachters.map((character, index) => (
-          <Grid item key={index} xs={6} md={4}>
-            <CharacterSummary character={character} onDetails={handleOpenCharacterDetails} />
-          </Grid>
-        ))}
+      <Grid container sx={{ padding: 3 }} spacing={2} justifyContent="center">
+        {isLoading ? (
+          <>
+            <Grid item xs={6} md={3}>
+              <CharacterSummarySkeleton />
+            </Grid>
+            <Grid item xs={6} md={3}>
+              <CharacterSummarySkeleton />
+            </Grid>
+            {mdUp && (
+              <>
+                <Grid item xs={6} md={3}>
+                  <CharacterSummarySkeleton />
+                </Grid>
+                <Grid item xs={6} md={3}>
+                  <CharacterSummarySkeleton />
+                </Grid>
+              </>
+            )}
+          </>
+        ) : (
+          charachters.map((character, index) => (
+            <Grid item key={index} xs={6} md={3}>
+              <CharacterSummary
+                character={getCharacterWithFilmNames(character)}
+                onDetails={handleOpenCharacterDetails}
+              />
+            </Grid>
+          ))
+        )}
       </Grid>
 
       {noData && <EmptyContent title="Nincs adat" />}
@@ -86,20 +137,6 @@ const PeopleContent = () => {
           page={page}
           onPageChange={handleChangePage}
         />
-
-        <Typography
-          variant="body2"
-          sx={{
-            paddingLeft: 1,
-            paddingRight: 3,
-            paddingY: 1.5,
-            top: 4,
-            right: { sm: 150 },
-            position: 'absolute',
-          }}
-        >
-          Oldalankénti sorok: 10
-        </Typography>
       </Box>
     </Card>
   );

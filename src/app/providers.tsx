@@ -1,8 +1,10 @@
 'use client';
 
 import { SettingsProvider } from '@/contexts/SettingsContext';
+import store from '@/redux';
 import ThemeProvider from '@/theme';
 import { ReactNode } from 'react';
+import { Provider } from 'react-redux';
 
 type Props = {
   children: ReactNode;
@@ -10,8 +12,10 @@ type Props = {
 
 export function Providers({ children }: Props) {
   return (
-    <SettingsProvider>
-      <ThemeProvider>{children}</ThemeProvider>
-    </SettingsProvider>
+    <Provider store={store}>
+      <SettingsProvider>
+        <ThemeProvider>{children}</ThemeProvider>
+      </SettingsProvider>
+    </Provider>
   );
 }
