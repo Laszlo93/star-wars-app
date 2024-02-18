@@ -3,6 +3,7 @@ import { Gender } from '@/@types/people';
 import SearchIcon from '@mui/icons-material/Search';
 import { useAppSelector } from '@/redux/hook';
 import { ChangeEvent, useState } from 'react';
+import useLocales from '@/hooks/useLocales';
 
 type Props = {
   onFilterName: (query: string) => void;
@@ -13,6 +14,8 @@ type Props = {
 let searchQueryTimeout = 0;
 
 const FilterToolbar = ({ onFilterName, onFilterGender, onFilterPlanet }: Props) => {
+  const { translate } = useLocales();
+
   const planets = useAppSelector((state) => state.planets.planets);
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -41,7 +44,7 @@ const FilterToolbar = ({ onFilterName, onFilterGender, onFilterPlanet }: Props) 
         fullWidth
         size="small"
         value={searchQuery}
-        placeholder="Keresés..."
+        placeholder={translate('dashboard.characters.toolbar.search')}
         InputProps={{
           startAdornment: (
             <InputAdornment position="start">
@@ -55,7 +58,7 @@ const FilterToolbar = ({ onFilterName, onFilterGender, onFilterPlanet }: Props) 
       <TextField
         size="small"
         select
-        label="Nem"
+        label={translate('dashboard.characters.toolbar.gender.label')}
         defaultValue={Gender.ALL}
         fullWidth
         sx={{ minWidth: 150 }}
@@ -77,7 +80,7 @@ const FilterToolbar = ({ onFilterName, onFilterGender, onFilterPlanet }: Props) 
               typography: 'body2',
             }}
           >
-            {option}
+            {translate(`dashboard.characters.toolbar.gender.${option}`)}
           </MenuItem>
         ))}
       </TextField>
@@ -85,7 +88,7 @@ const FilterToolbar = ({ onFilterName, onFilterGender, onFilterPlanet }: Props) 
       <TextField
         size="small"
         select
-        label="Bolygó"
+        label={translate('dashboard.characters.toolbar.homeworld.label')}
         defaultValue="all"
         fullWidth
         sx={{ minWidth: 150 }}
@@ -105,7 +108,7 @@ const FilterToolbar = ({ onFilterName, onFilterGender, onFilterPlanet }: Props) 
             typography: 'body2',
           }}
         >
-          Összes
+          {translate('dashboard.characters.toolbar.homeworld.all')}
         </MenuItem>
 
         {planets?.map((option) => (

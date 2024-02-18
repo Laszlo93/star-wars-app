@@ -8,8 +8,13 @@ import Logo from './Logo';
 import Link from 'next/link';
 import LanguagePopover from './LanguagePopover';
 import ThemeModeSettings from './ThemeModeSettings';
+import useLocales from '@/hooks/useLocales';
 
 function Navbar() {
+  const { translate } = useLocales();
+
+  console.log(translate('navbar.logout'));
+
   return (
     <AppBar position="sticky">
       <Toolbar
@@ -28,7 +33,7 @@ function Navbar() {
             <ThemeModeSettings />
 
             <Button LinkComponent={Link} href="/login" sx={{ my: 2, textTransform: 'capitalize' }}>
-              Kijelentkezés
+              {translate('navbar.logout')}
             </Button>
           </Box>
         </Box>
