@@ -84,7 +84,7 @@ const PeopleContent = () => {
     if (query === Gender.ALL) {
       setFilteredCharacters(charachters);
     } else {
-      setFilteredCharacters((prev) => prev.filter((character) => character.gender === query));
+      setFilteredCharacters(charachters.filter((character) => character.gender === query));
     }
   };
 
@@ -92,8 +92,8 @@ const PeopleContent = () => {
     if (query === 'all') {
       setFilteredCharacters(charachters);
     } else {
-      setFilteredCharacters((prev) =>
-        prev.filter((character) => {
+      setFilteredCharacters(
+        charachters.filter((character) => {
           const planetId = character.homeworld.split('/').at(-2);
 
           return planetId ? query === planets[Number(planetId) - 1] : false;
