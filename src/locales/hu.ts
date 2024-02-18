@@ -26,6 +26,12 @@ const hu = {
       },
     },
   },
+  page404: {
+    title: 'Az oldal nem található',
+    content:
+      'Sajnáljuk, de az általad keresett oldal nem található. Bizonyosodj meg róla, hogy a megfeleő url-t adtad meg.',
+    goPeople: 'Karakterek',
+  },
 };
 
 export default hu;

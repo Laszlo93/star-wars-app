@@ -13,8 +13,6 @@ import useLocales from '@/hooks/useLocales';
 function Navbar() {
   const { translate } = useLocales();
 
-  console.log(translate('navbar.logout'));
-
   return (
     <AppBar position="sticky">
       <Toolbar
