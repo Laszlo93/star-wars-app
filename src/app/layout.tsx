@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import ThemeProvider from '@/theme';
 import Navbar from '@/components/navbar/Navbar';
+import { Providers } from './providers';
 
 export const metadata: Metadata = {
   title: 'Star Wars App',
@@ -16,11 +16,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <ThemeProvider>
+        <Providers>
           <Navbar />
 
           {children}
-        </ThemeProvider>
+        </Providers>
       </body>
     </html>
   );

@@ -1,6 +1,6 @@
 'use client';
 
-import { ReactNode } from 'react';
+import { ReactNode, useMemo } from 'react';
 import { CssBaseline } from '@mui/material';
 import {
   createTheme,
@@ -8,20 +8,31 @@ import {
   ThemeProvider as MUIThemeProvider,
   StyledEngineProvider,
 } from '@mui/material/styles';
-import palette from './palette';
 import { ComponentsOverrides } from './overrides';
+import useSettings from '@/hooks/useSettings';
+import { ThemeMode } from '@/@types/types';
+import palette from './palette';
 
 type Props = {
   children: ReactNode;
 };
+const ThemeProvider = ({ children }: Props) => {
+  const { themeMode } = useSettings();
 
-export default function ThemeProvider({ children }: Props) {
   const baseTheme = createTheme();
 
-  const themeOptions: ThemeOptions = {
-    palette: { ...baseTheme.palette, ...palette.dark },
-    shape: { borderRadius: 8 },
-  };
+  const lightPalette = palette.light;
+  const darkPalette = palette.dark;
+
+  const themePalette = themeMode === ThemeMode.LIGHT ? lightPalette : darkPalette;
+
+  const themeOptions: ThemeOptions = useMemo(
+    () => ({
+      palette: { ...baseTheme.palette, ...themePalette },
+      shape: { borderRadius: 8 },
+    }),
+    [themeMode]
+  );
 
   const theme = createTheme(themeOptions);
 
@@ -36,4 +47,6 @@ export default function ThemeProvider({ children }: Props) {
       </MUIThemeProvider>
     </StyledEngineProvider>
   );
-}
+};
+
+export default ThemeProvider;
