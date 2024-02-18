@@ -19,15 +19,23 @@ const AnimatedCard = styled(Card)(({ theme }) => ({
 
 type Props = {
   character: Character;
+  onDetails: (character: Character) => void;
 };
 
-const CharacterSummary = ({ character }: Props) => {
+const CharacterSummary = ({ character, onDetails }: Props) => {
   const { name, url } = character;
 
   const characterId = url.split('/').at(-2);
 
+  const handleDetails = () => {
+    onDetails(character);
+  };
+
   return (
-    <AnimatedCard sx={{ background: (theme) => theme.palette.background.neutral }}>
+    <AnimatedCard
+      sx={{ background: (theme) => theme.palette.background.neutral }}
+      onClick={handleDetails}
+    >
       <Box
         component="img"
         src={`/assets/img/people/${characterId}.jpg`}
